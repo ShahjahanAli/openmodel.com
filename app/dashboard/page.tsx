@@ -1,10 +1,11 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
-import { Bot, Plus, MessageSquare, Settings, LogOut, Trash2, Edit } from 'lucide-react';
+import { Plus, MessageSquare, Settings, Trash2, Edit } from 'lucide-react';
 import Link from 'next/link';
 import connectDB from '@/lib/mongodb';
-import AIModel from '@/models/AIModel';
+import AIModel, { IAIModel } from '@/models/AIModel';
+import Logo from '@/components/ui/Logo';
 
 export default async function DashboardPage() {
   const { userId } = await auth();
@@ -29,7 +30,7 @@ export default async function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <Logo size="md" className="text-blue-600" />
               <span className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">OpenModel</span>
             </div>
             <div className="flex items-center space-x-4">
@@ -141,7 +142,7 @@ export default async function DashboardPage() {
           <div className="p-4 sm:p-6">
             {userModels.length === 0 ? (
               <div className="text-center py-8 sm:py-12">
-                <Bot className="h-10 w-10 sm:h-12 sm:w-12 text-slate-400 mx-auto mb-4" />
+                <Logo size="lg" className="text-slate-400 mx-auto mb-4" />
                 <h3 className="text-base sm:text-lg font-medium text-slate-900 dark:text-white mb-2">
                   No models yet
                 </h3>
@@ -156,8 +157,8 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-3 sm:space-y-4">
-                {userModels.map((model: any) => (
-                  <div key={model._id} className="bg-slate-50 dark:bg-slate-700 rounded-lg p-3 sm:p-4 border border-slate-200 dark:border-slate-600">
+                {userModels.map((model: IAIModel) => (
+                  <div key={String(model._id)} className="bg-slate-50 dark:bg-slate-700 rounded-lg p-3 sm:p-4 border border-slate-200 dark:border-slate-600">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mb-2">

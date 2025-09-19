@@ -2,10 +2,11 @@
 
 import { useUser } from '@clerk/nextjs';
 import { UserButton } from '@clerk/nextjs';
-import { ArrowLeft, Send, Bot, User, Plus } from 'lucide-react';
+import { ArrowLeft, Send, User, Plus, Bot } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Logo from '@/components/ui/Logo';
 
 interface AIModel {
   _id: string;
@@ -19,11 +20,7 @@ interface AIModel {
   createdAt: string;
 }
 
-interface ChatPageProps {
-  searchParams: { model?: string };
-}
-
-export default function ChatPage({ searchParams }: ChatPageProps) {
+function ChatPageContent() {
   const { isLoaded, isSignedIn, user } = useUser();
   const router = useRouter();
   const searchParamsHook = useSearchParams();
@@ -192,7 +189,7 @@ export default function ChatPage({ searchParams }: ChatPageProps) {
               </Link>
             </div>
             <div className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <Logo size="md" className="text-blue-600" />
               <span className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">OpenModel</span>
             </div>
             <div className="flex items-center space-x-4">
@@ -223,7 +220,7 @@ export default function ChatPage({ searchParams }: ChatPageProps) {
               onChange={(e) => handleModelChange(e.target.value)}
             >
               <option value="">Choose a model...</option>
-              {userModels.map((model: any) => (
+              {userModels.map((model: AIModel) => (
                 <option key={model._id} value={model._id.toString()}>
                   {model.name} ({model.provider === 'openai' ? 'OpenAI' :
                                  model.provider === 'anthropic' ? 'Anthropic' :
@@ -299,7 +296,7 @@ export default function ChatPage({ searchParams }: ChatPageProps) {
                 onChange={(e) => handleModelChange(e.target.value)}
               >
                 <option value="">Choose a model...</option>
-                {userModels.map((model: any) => (
+                {userModels.map((model: AIModel) => (
                   <option key={model._id} value={model._id.toString()}>
                     {model.name} ({model.provider === 'openai' ? 'OpenAI' :
                                    model.provider === 'anthropic' ? 'Anthropic' :
@@ -353,28 +350,28 @@ export default function ChatPage({ searchParams }: ChatPageProps) {
                       className="p-3 sm:p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left"
                     >
                       <h3 className="text-sm sm:text-base font-medium text-slate-900 dark:text-white mb-1">Explain a concept</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">"Explain quantum computing in simple terms"</p>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">&quot;Explain quantum computing in simple terms&quot;</p>
                     </button>
                     <button 
                       onClick={() => setInputMessage("Write a Python function to sort a list")}
                       className="p-3 sm:p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left"
                     >
                       <h3 className="text-sm sm:text-base font-medium text-slate-900 dark:text-white mb-1">Write code</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">"Write a Python function to sort a list"</p>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">&quot;Write a Python function to sort a list&quot;</p>
                     </button>
                     <button 
                       onClick={() => setInputMessage("Write a short story about a robot")}
                       className="p-3 sm:p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left"
                     >
                       <h3 className="text-sm sm:text-base font-medium text-slate-900 dark:text-white mb-1">Creative writing</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">"Write a short story about a robot"</p>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">&quot;Write a short story about a robot&quot;</p>
                     </button>
                     <button 
                       onClick={() => setInputMessage("Help me debug this JavaScript error")}
                       className="p-3 sm:p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-left"
                     >
                       <h3 className="text-sm sm:text-base font-medium text-slate-900 dark:text-white mb-1">Problem solving</h3>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">"Help me debug this JavaScript error"</p>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">&quot;Help me debug this JavaScript error&quot;</p>
                     </button>
                   </div>
                 </div>
@@ -515,5 +512,17 @@ export default function ChatPage({ searchParams }: ChatPageProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <ChatPageContent />
+    </Suspense>
   );
 }

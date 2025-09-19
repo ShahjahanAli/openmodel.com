@@ -2,10 +2,18 @@
 
 import { useUser } from '@clerk/nextjs';
 import { UserButton } from '@clerk/nextjs';
-import { ArrowLeft, Bot, Key, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Key, Link as LinkIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Logo from '@/components/ui/Logo';
+
+// Define interfaces for API responses
+interface ModelData {
+  id?: string;
+  name?: string;
+}
+
 
 export default function NewModelPage() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -62,7 +70,7 @@ export default function NewModelPage() {
     try {
       let modelsEndpoint: string;
       let requestMethod: string = 'GET';
-      let requestBody: any = null;
+      const requestBody: Record<string, unknown> | null = null;
       
       // Determine the models endpoint and method based on server type
       if (serverType.includes('ollama')) {
@@ -84,7 +92,7 @@ export default function NewModelPage() {
         requestMethod = 'GET';
       }
 
-      const headers: any = {
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
 
@@ -109,7 +117,7 @@ export default function NewModelPage() {
             
             if (postResponse.ok) {
               const postData = await postResponse.json();
-              const models = postData.data?.map((model: any) => model.id) || postData.models?.map((model: any) => model.name) || [];
+              const models = postData.data?.map((model: ModelData) => model.id) || postData.models?.map((model: ModelData) => model.name) || [];
               setAvailableModels(models);
               if (models.length === 0) {
                 setModelError('No models found. Make sure you have loaded models in your local AI server.');
@@ -142,7 +150,7 @@ export default function NewModelPage() {
               
               if (altResponse.ok) {
                 const altData = await altResponse.json();
-                const models = altData.data?.map((model: any) => model.id) || altData.models?.map((model: any) => model.name) || [];
+                const models = altData.data?.map((model: ModelData) => model.id) || altData.models?.map((model: ModelData) => model.name) || [];
                 setAvailableModels(models);
                 if (models.length === 0) {
                   setModelError('No models found. Make sure you have loaded models in your local AI server.');
@@ -163,10 +171,10 @@ export default function NewModelPage() {
 
       if (serverType.includes('ollama')) {
         // Ollama returns { models: [{ name: "model-name", ... }] }
-        models = data.models?.map((model: any) => model.name) || [];
+        models = data.models?.map((model: ModelData) => model.name) || [];
       } else {
         // OpenAI-compatible returns { data: [{ id: "model-id", ... }] }
-        models = data.data?.map((model: any) => model.id) || data.models?.map((model: any) => model.name) || [];
+        models = data.data?.map((model: ModelData) => model.id) || data.models?.map((model: ModelData) => model.name) || [];
       }
 
       setAvailableModels(models);
@@ -180,7 +188,7 @@ export default function NewModelPage() {
       
       let helpfulMessage = '';
       if (errorMessage.includes('405')) {
-        helpfulMessage = ' The server doesn\'t support the models endpoint. Try using "Custom Model (Manual Entry)" instead.';
+        helpfulMessage = ' The server doesn&apos;t support the models endpoint. Try using &quot;Custom Model (Manual Entry)&quot; instead.';
       } else if (errorMessage.includes('Connection refused') || errorMessage.includes('Failed to fetch')) {
         helpfulMessage = ' Make sure your AI server is running and accessible at the specified endpoint.';
       } else if (errorMessage.includes('404')) {
@@ -242,7 +250,7 @@ export default function NewModelPage() {
         throw new Error(errorData.error || 'Failed to create model');
       }
 
-      const result = await response.json();
+      await response.json();
       setSubmitSuccess('Model created successfully! Redirecting to dashboard...');
       
       // Redirect to dashboard after a short delay
@@ -271,7 +279,7 @@ export default function NewModelPage() {
               </Link>
             </div>
             <div className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <Logo size="md" className="text-blue-600" />
               <span className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">OpenModel</span>
             </div>
             <div className="flex items-center space-x-4">
@@ -316,7 +324,7 @@ export default function NewModelPage() {
             >
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                  <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+                  <Logo size="sm" className="text-green-600" />
                 </div>
                 <div>
                   <h3 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base">OpenAI</h3>
@@ -336,7 +344,7 @@ export default function NewModelPage() {
             >
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
-                  <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
+                  <Logo size="sm" className="text-orange-600" />
                 </div>
                 <div>
                   <h3 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base">Anthropic</h3>
@@ -356,7 +364,7 @@ export default function NewModelPage() {
             >
               <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                  <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+                  <Logo size="sm" className="text-blue-600" />
                 </div>
                 <div>
                   <h3 className="font-medium text-slate-900 dark:text-white text-sm sm:text-base">Google</h3>
@@ -746,7 +754,7 @@ export default function NewModelPage() {
                             className="rounded border-blue-300 text-blue-600 focus:ring-blue-500"
                           />
                           <label htmlFor="docker-checkbox" className="text-sm text-blue-800 dark:text-blue-200">
-                            I'm using Docker containers for my AI server
+                            I&apos;m using Docker containers for my AI server
                           </label>
                         </div>
                       </div>
@@ -792,7 +800,7 @@ export default function NewModelPage() {
                       />
                     </div>
                     <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                      Most local AI servers don't require an API key
+                      Most local AI servers don&apos;t require an API key
                     </p>
                   </div>
                 </>
@@ -829,7 +837,7 @@ export default function NewModelPage() {
         {!selectedProvider && (
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
             <div className="text-center py-8">
-              <Bot className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+              <Logo size="lg" className="text-slate-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
                 Select a Provider
               </h3>
@@ -852,7 +860,7 @@ export default function NewModelPage() {
                   <li>• <strong>Docker:</strong> Use Docker containers for easy setup and isolation</li>
                 </ul>
                 <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
-                  Select "Custom" provider above to configure your local AI server
+                  Select &quot;Custom&quot; provider above to configure your local AI server
                 </p>
               </div>
             </div>

@@ -1,7 +1,7 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import AIModel from '@/models/AIModel';
+import AIModel, { IAIModel } from '@/models/AIModel';
 import Chat from '@/models/Chat';
 import { estimateTokenCount, calculateTokensPerSecond } from '@/lib/tokenCounter';
 
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateAIResponse(message: string, model: any): Promise<string> {
+async function generateAIResponse(message: string, model: IAIModel): Promise<string> {
   try {
     // Handle different AI providers
     if (model.provider === 'openai') {
@@ -110,9 +110,13 @@ async function generateAIResponse(message: string, model: any): Promise<string> 
   }
 }
 
-async function callLocalAI(message: string, model: any): Promise<string> {
+async function callLocalAI(message: string, model: IAIModel): Promise<string> {
   const endpoint = model.endpoint;
   const apiKey = model.apiKey || '';
+  
+  if (!endpoint) {
+    throw new Error('Endpoint is required for custom models');
+  }
   
   // Debug logging
   console.log('Calling local AI with:', {
@@ -123,7 +127,7 @@ async function callLocalAI(message: string, model: any): Promise<string> {
   });
   
   // Prepare the request payload based on the server type
-  let payload: any;
+  let payload: Record<string, unknown>;
   
   if (endpoint.includes('ollama') || endpoint.includes('/api/generate')) {
     // Ollama API format - uses /api/generate endpoint
@@ -147,7 +151,7 @@ async function callLocalAI(message: string, model: any): Promise<string> {
     };
   }
   
-  const headers: any = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
   
@@ -176,7 +180,7 @@ async function callLocalAI(message: string, model: any): Promise<string> {
   try {
     // Try to parse as single JSON object first
     data = JSON.parse(responseText);
-  } catch (error) {
+  } catch {
     // If that fails, it might be a streaming response with multiple JSON objects
     console.log('Single JSON parse failed, trying to parse streaming response...');
     
@@ -203,7 +207,7 @@ async function callLocalAI(message: string, model: any): Promise<string> {
               break;
             }
           }
-        } catch (lineError) {
+        } catch {
           console.log('Failed to parse line:', line);
         }
       }
@@ -254,7 +258,7 @@ async function callLocalAI(message: string, model: any): Promise<string> {
   }
 }
 
-async function callOpenAI(message: string, model: any): Promise<string> {
+async function callOpenAI(message: string, model: IAIModel): Promise<string> {
   const apiKey = model.apiKey;
   
   if (!apiKey) {
@@ -316,17 +320,17 @@ async function callOpenAI(message: string, model: any): Promise<string> {
   }
 }
 
-async function callAnthropic(message: string, model: any): Promise<string> {
+async function callAnthropic(message: string, model: IAIModel): Promise<string> {
   // TODO: Implement Anthropic API call
   return await generateSimulatedResponse(message, model);
 }
 
-async function callGoogle(message: string, model: any): Promise<string> {
+async function callGoogle(message: string, model: IAIModel): Promise<string> {
   // TODO: Implement Google API call
   return await generateSimulatedResponse(message, model);
 }
 
-async function generateSimulatedResponse(message: string, model: any): Promise<string> {
+async function generateSimulatedResponse(message: string, model: IAIModel): Promise<string> {
   const responses = [
     "I understand your question. Let me help you with that.",
     "That's an interesting point. Here's what I think about it:",

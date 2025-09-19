@@ -2,10 +2,18 @@
 
 import { useUser } from '@clerk/nextjs';
 import { UserButton } from '@clerk/nextjs';
-import { ArrowLeft, Bot, Key, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Key, Link as LinkIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Logo from '@/components/ui/Logo';
+
+// Define interfaces for API responses
+interface ModelData {
+  id?: string;
+  name?: string;
+}
+
 
 export default function EditModelPage() {
   const { isLoaded, isSignedIn, user } = useUser();
@@ -26,7 +34,7 @@ export default function EditModelPage() {
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [modelError, setModelError] = useState<string>('');
-  const [isDockerServer, setIsDockerServer] = useState(false);
+  const [, setIsDockerServer] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string>('');
   const [submitSuccess, setSubmitSuccess] = useState<string>('');
@@ -124,9 +132,9 @@ export default function EditModelPage() {
         let models: string[] = [];
         
         if (serverType === 'ollama') {
-          models = data.models?.map((model: any) => model.name) || [];
+          models = data.models?.map((model: ModelData) => model.name) || [];
         } else {
-          models = data.data?.map((model: any) => model.id) || [];
+          models = data.data?.map((model: ModelData) => model.id) || [];
         }
         
         setAvailableModels(models);
@@ -202,7 +210,7 @@ export default function EditModelPage() {
               </Link>
             </div>
             <div className="flex items-center space-x-2">
-              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+              <Logo size="md" className="text-blue-600" />
               <span className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white">OpenModel</span>
             </div>
             <div className="flex items-center space-x-4">
@@ -247,7 +255,7 @@ export default function EditModelPage() {
                 >
                   <div className="text-center">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <Logo size="sm" className="text-white" />
                     </div>
                     <h3 className="text-sm sm:text-base font-medium text-slate-900 dark:text-white">OpenAI</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">GPT-4, GPT-3.5</p>
@@ -264,7 +272,7 @@ export default function EditModelPage() {
                 >
                   <div className="text-center">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <Logo size="sm" className="text-white" />
                     </div>
                     <h3 className="text-sm sm:text-base font-medium text-slate-900 dark:text-white">Anthropic</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">Claude 3</p>
@@ -281,7 +289,7 @@ export default function EditModelPage() {
                 >
                   <div className="text-center">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-500 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <Logo size="sm" className="text-white" />
                     </div>
                     <h3 className="text-sm sm:text-base font-medium text-slate-900 dark:text-white">Google</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">Gemini Pro</p>

@@ -1,8 +1,9 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
-import { ArrowLeft, User, Key, Bell, Shield, Trash2 } from 'lucide-react';
+import { ArrowLeft, User, Bell, Shield, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import Logo from '@/components/ui/Logo';
 
 export default async function SettingsPage() {
   const { userId } = await auth();
